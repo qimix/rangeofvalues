@@ -1,4 +1,6 @@
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 
 public class Main {
 
@@ -9,29 +11,40 @@ public class Main {
         }
 
         long startTs = System.currentTimeMillis(); // start time
+        List<Thread> threads = new ArrayList<>();
+        int index = 0;
         for (String text : texts) {
-            int maxSize = 0;
-            for (int i = 0; i < text.length(); i++) {
-                for (int j = 0; j < text.length(); j++) {
-                    if (i >= j) {
-                        continue;
-                    }
-                    boolean bFound = false;
-                    for (int k = i; k < j; k++) {
-                        if (text.charAt(k) == 'b') {
-                            bFound = true;
-                            break;
+            Runnable logic = () -> {
+                int maxSize = 0;
+                for (int i = 0; i < text.length(); i++) {
+                    for (int j = 0; j < text.length(); j++) {
+                        if (i >= j) {
+                            continue;
+                        }
+                        boolean bFound = false;
+                        for (int k = i; k < j; k++) {
+                            if (text.charAt(k) == 'b') {
+                                bFound = true;
+                                break;
+                            }
+                        }
+                        if (!bFound && maxSize < j - i) {
+                            maxSize = j - i;
                         }
                     }
-                    if (!bFound && maxSize < j - i) {
-                        maxSize = j - i;
-                    }
                 }
-            }
-            System.out.println(text.substring(0, 100) + " -> " + maxSize);
+                System.out.println(text.substring(0, 100) + " -> " + maxSize);
+            };
+            threads.add(new Thread(logic));
+            threads.get(index).start();
+            index++;
         }
-        long endTs = System.currentTimeMillis(); // end time
 
+        for (Thread thread : threads) {
+            thread.join(); // зависаем, ждём когда поток объект которого лежит в thread завершится
+        }
+
+        long endTs = System.currentTimeMillis(); // end time
         System.out.println("Time: " + (endTs - startTs) + "ms");
     }
 
