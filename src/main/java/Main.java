@@ -12,7 +12,6 @@ public class Main {
 
         long startTs = System.currentTimeMillis(); // start time
         List<Thread> threads = new ArrayList<>();
-        int index = 0;
         for (String text : texts) {
             Runnable logic = () -> {
                 int maxSize = 0;
@@ -36,16 +35,15 @@ public class Main {
                 System.out.println(text.substring(0, 100) + " -> " + maxSize);
             };
             threads.add(new Thread(logic));
-            threads.get(index).start();
-            index++;
-        }
-
-        for (Thread thread : threads) {
-            thread.join(); // зависаем, ждём когда поток объект которого лежит в thread завершится
+            threads.get(threads.size() - 1).start();
         }
 
         long endTs = System.currentTimeMillis(); // end time
         System.out.println("Time: " + (endTs - startTs) + "ms");
+
+        for (Thread thread : threads) {
+            thread.join(); // зависаем, ждём когда поток объект которого лежит в thread завершится
+        }
     }
 
     public static String generateText(String letters, int length) {
